@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <title>Driving School Profile</title>
+    <style>
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow">
+        <div class="container mx-auto p-4">
+            <h1 class="text-3xl font-bold text-center">Driving School Profile</h1>
+        </div>
+    </header>
+
+    <div class="container mx-auto p-4">
+        <div id="loading" class="flex justify-center items-center mb-4">
+            <div class="spinner"></div>
+        </div>
+        <h1 id="schoolName" class="text-3xl font-bold mb-4 text-center"></h1>
+        <div id="schoolDetails" class="bg-white p-4 rounded-lg shadow hidden">
+            <div id="schoolInfo" class="mb-4">
+                <h2 class="text-xl font-semibold mb-2">General Information</h2>
+                <p id="location" class="mb-2"></p>
+                <p id="rating" class="mb-2"></p>
+                <p id="price" class="mb-2"></p>
+            </div>
+            <div id="services" class="mb-4">
+                <h2 class="text-xl font-semibold mb-2">Services</h2>
+                <ul id="servicesList" class="list-disc pl-5"></ul>
+            </div>
+            <div id="instructors" class="mb-4">
+                <h2 class="text-xl font-semibold mb-2">Instructors</h2>
+                <ul id="instructorsList" class="list-disc pl-5"></ul>
+            </div>
+            <div id="reviews" class="mb-4">
+                <h2 class="text-xl font-semibold mb-2">Reviews</h2>
+                <div id="reviewsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white shadow mt-4">
+        <div class="container mx-auto p-4 text-center">
+            <p class="text-gray-600">© 2023 DriveWise. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const schoolId = urlParams.get('id');
+
+            // Show loading spinner
+            document.getElementById('loading').classList.remove('hidden');
+
+            fetch(`/api/driving-schools/${schoolId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('schoolName').innerText = data.name;
+                    document.getElementById('location').innerText = `Location: ${data.location}`;
+                    document.getElementById('rating').innerText = `Rating: ${data.rating} ⭐`;
+                    document.getElementById('price').innerText = `Price: $${data.price}`;
+
+                    const servicesList = document.getElementById('servicesList');
+                    servicesList.innerHTML = '';
+                    data.services.forEach(service => {
+                        const listItem = document.createElement('li');
+                        listItem.innerText = service;
+                        servicesList.appendChild(listItem);
+                    });
+
+                    const instructorsList = document.getElementById('instructorsList');
+                    instructorsList.innerHTML = '';
+                    data.instructors.forEach(instructor => {
+                        const listItem = document.createElement('li');
+                        listItem.innerText = `${instructor.name} (Experience: ${instructor.experience} years)`;
+                        instructorsList.appendChild(listItem);
+                    });
+
+                    const reviewsList = document.getElementById('reviewsList');
+                    reviewsList.innerHTML = '';
+                    data.reviews.forEach(review => {
+                        const reviewCard = document.createElement('div');
+                        reviewCard.className = 'bg-gray-50 p-3 mb-3 rounded-lg shadow card';
+                        reviewCard.innerHTML = `
+                            <p class="font-semibold">Rating: ${review.rating} ⭐</p>
+                            <p>${review.comment}</p>
+                        `;
+                        reviewsList.appendChild(reviewCard);
+                    });
+
+                    // Hide loading spinner and show content
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('schoolDetails').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    alert('An error occurred while fetching data. Please try again later.');
+                    document.getElementById('loading').classList.add('hidden');
+                });
+        });
+    </script>
+</body>
+</html>

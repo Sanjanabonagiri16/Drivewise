@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Lexend%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900">
+    <title>DriveWise - Payment</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #3490dc;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+    <div class="relative flex flex-col min-h-screen justify-between overflow-x-hidden">
+        <div class="container mx-auto p-6">
+            <!-- Header -->
+            <div class="flex items-center bg-white p-4 justify-between rounded-lg shadow-md">
+                <div class="text-[#111518] flex items-center" data-icon="ArrowLeft" data-size="24px" data-weight="regular">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-[#111518] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Payment</h2>
+            </div>
+
+            <!-- Payment Details Section -->
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <h2 class="text-lg font-bold mb-4">Payment Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="amount" class="block text-sm font-medium text-gray-700">Amount:</label>
+                        <input type="number" id="amount" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" required placeholder="Enter amount">
+                    </div>
+                    <div>
+                        <label for="paymentMethod" class="block text-sm font-medium text-gray-700">Payment Method:</label>
+                        <select id="paymentMethod" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                            <option value="creditCard">Credit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="bankTransfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="loadingIndicator" class="hidden text-center">
+                    <span>Loading...</span>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button id="pay-button" class="flex items-center justify-center w-full md:w-auto bg-blue-500 text-white rounded-lg px-4 py-2 font-bold">Pay</button>
+                </div>
+            </div>
+
+            <!-- Payment History Section -->
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <h2 class="text-lg font-bold">Payment History</h2>
+                <button id="fetchPayments" class="mt-2 bg-blue-500 text-white rounded px-4 py-2">View Payment History</button>
+                <div id="paymentHistory" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('pay-button').addEventListener('click', async function() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+
+            const amount = document.getElementById('amount').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const userId = localStorage.getItem('userId'); // Assuming you store userId in local storage
+            const token = localStorage.getItem('token'); // Assuming you store the token in local storage
+
+            try {
+                const response = await fetch('http://localhost:5000/api/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ userId, amount, paymentMethod }),
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Payment successful!');
+                } else {
+                    alert('Payment failed: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error processing payment:', error);
+                alert('Payment failed. Please try again.');
+            } finally {
+                loadingIndicator.classList.add('hidden'); // Hide loading indicator
+            }
+        });
+
+        document.getElementById('fetchPayments').addEventListener('click', async () => {
+            const userId = localStorage.getItem('userId'); // Assuming you store userId in local storage
+            const token = localStorage.getItem('token'); // Assuming you store the token in local storage
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/payments/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const paymentHistoryDiv = document.getElementById('paymentHistory');
+                    paymentHistoryDiv.innerHTML = ''; // Clear previous history
+                    data.payments.forEach(payment => {
+                        const paymentItem = document.createElement('div');
+                        paymentItem.className = 'p-2 border-b border-gray-200';
+                        paymentItem.textContent = `Payment ID: ${payment._id}, Amount: $${payment.amount}, Date: ${new Date(payment.createdAt).toLocaleDateString()}`;
+                        paymentHistoryDiv.appendChild(paymentItem);
+                    });
+                } else {
+                    alert('Failed to fetch payment history: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching payment history:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>

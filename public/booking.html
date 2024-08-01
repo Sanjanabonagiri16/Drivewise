@@ -1,0 +1,366 @@
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+        <title>DriveWise Dashboard</title>
+        <style>
+            body {
+                font-family: 'Noto Sans', sans-serif;
+            }
+
+            .loading {
+                display: none;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 1.5rem;
+                color: #3490dc;
+            }
+
+            .card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            }
+
+            .loader {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3490dc;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                animation: spin 2s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+
+    <body class="bg-gray-100 flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-md h-screen">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-blue-600">DriveWise</h2>
+                <nav class="mt-6">
+                    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-blue-100 rounded">Dashboard</a>
+                    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-blue-100 rounded">Book a Lesson</a>
+                    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-blue-100 rounded">Upcoming Lessons</a>
+                    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-blue-100 rounded">Profile</a>
+                    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-blue-100 rounded">Settings</a>
+                    <a href="#" class="block py-2 px-4 text-gray-700 hover:bg-blue-100 rounded">Logout</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Dashboard</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div class="card bg-white p-4 rounded-lg shadow-md">
+                    <h2 class="font-bold text-lg">Upcoming Lessons</h2>
+                    <div id="upcomingLessons" class="mt-4">
+                        <!-- Upcoming lessons will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div class="card bg-white p-4 rounded-lg shadow-md">
+                    <h2 class="font-bold text-lg">Booking Management</h2>
+                    <div id="bookingManagement" class="mt-4">
+                        <!-- Current and past bookings will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <div class="card bg-white p-4 rounded-lg shadow-md">
+                    <h2 class="font-bold text-lg">Notifications</h2>
+                    <div id="notifications" class="mt-4">
+                        <!-- Notifications will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-4 text-center text-blue-600">Book a Driving Lesson</h2>
+                <div class="mb-6">
+                    <label for="schoolSelect" class="block text-lg font-medium mb-2 text-gray-700">Select Driving School:</label>
+                    <select id="schoolSelect" class="border rounded-lg p-2 w-full bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select a school...</option>
+                        <!-- Options will be dynamically inserted here -->
+                    </select>
+                </div>
+
+                <div id="availableSlots" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Available slots will be dynamically inserted here -->
+                </div>
+
+                <div id="loading" class="loading flex items-center justify-center">
+                    <div class="loader"></div>
+                    <span class="ml-2">Loading available slots...</span>
+                </div>
+                <div id="noSlots" class="text-center text-gray-500 hidden">No available slots found.</div>
+            </div>
+
+            <div id="feedback" class="mt-6">
+                <h2 class="text-xl font-bold mb-2 text-gray-700">Leave Feedback</h2>
+                <textarea id="feedbackText" class="border rounded-lg p-2 w-full bg-white shadow-md" rows="4" placeholder="Share your experience..."></textarea>
+                <button id="submitFeedback" class="mt-2 btn bg-blue-500 text-white rounded-lg w-full py-2">Submit Feedback</button>
+            </div>
+        </main>
+
+        <script src="scripts/booking.js"></script>
+        <script>
+            // Loading spinner animation
+            const loader = document.createElement('div');
+            loader.className = 'loader-border border-t-4 border-blue-500 w-8 h-8 rounded-full animate-spin';
+            document.getElementById('loading').appendChild(loader);
+
+            // Mock data for upcoming lessons
+            const mockUpcomingLessons = [
+                { id: 1, date: '2023-10-15', time: '10:00 AM', school: 'DriveWise School' },
+                { id: 2, date: '2023-10-20', time: '2:00 PM', school: 'DriveWise School' },
+            ];
+
+            // Mock data for current bookings
+            const mockCurrentBookings = [
+                { id: 1, date: '2023-10-10', time: '1:00 PM', school: 'DriveWise School' },
+                { id: 2, date: '2023-10-12', time: '3:00 PM', school: 'DriveWise School' },
+            ];
+
+            // Mock data for notifications
+            const mockNotifications = [
+                { id: 1, message: 'Your lesson is scheduled for 2023-10-15 at 10:00 AM.', date: '2023-10-01' },
+                { id: 2, message: 'Dont forget to bring your ID to the lesson.', date: '2023-10-02' },
+            ];
+
+            // Display lessons in the dashboard
+            function displayUpcomingLessons(lessons) {
+                const upcomingLessonsDiv = document.getElementById('upcomingLessons');
+                upcomingLessonsDiv.innerHTML = ''; // Clear existing content
+                if (lessons.length === 0) {
+                    upcomingLessonsDiv.innerHTML = '<p>No upcoming lessons found.</p>';
+                    return;
+                }
+                lessons.forEach(lesson => {
+                    const lessonCard = document.createElement('div');
+                    lessonCard.className = 'card bg-white p-4 rounded-lg shadow-md';
+                    lessonCard.innerHTML = `
+                        <h3 class="font-bold">${lesson.date} at ${lesson.time}</h3>
+                        <p>${lesson.school}</p>
+                    `;
+                    upcomingLessonsDiv.appendChild(lessonCard);
+                });
+            }
+
+            // Call the function with mock data
+            displayUpcomingLessons(mockUpcomingLessons);
+
+            // Fetch current bookings from the backend
+            async function fetchCurrentBookings() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/bookings/current');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const bookings = await response.json();
+                    displayCurrentBookings(bookings);
+                } catch (error) {
+                    console.error('Error fetching current bookings:', error);
+                    alert('Failed to load current bookings. Please try again later.');
+                }
+            }
+
+            // Display current bookings in the dashboard
+            function displayCurrentBookings(bookings) {
+                const bookingManagementDiv = document.getElementById('bookingManagement');
+                bookingManagementDiv.innerHTML = ''; // Clear existing content
+                if (bookings.length === 0) {
+                    bookingManagementDiv.innerHTML = '<p>No current bookings found.</p>';
+                    return;
+                }
+                bookings.forEach(booking => {
+                    const bookingCard = document.createElement('div');
+                    bookingCard.className = 'card bg-white p-4 rounded-lg shadow-md';
+                    bookingCard.innerHTML = `
+                        <h3 class="font-bold">${booking.date} at ${booking.time}</h3>
+                        <p>${booking.school}</p>
+                        <button class="bg-red-500 text-white rounded px-4 py-2 mt-2" onclick="cancelBooking('${booking.id}')">Cancel Booking</button>
+                    `;
+                    bookingManagementDiv.appendChild(bookingCard);
+                });
+            }
+
+            // Call the function with mock data
+            displayCurrentBookings(mockCurrentBookings);
+
+            // Fetch notifications from the backend
+            async function fetchNotifications() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/notifications');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const notifications = await response.json();
+                    displayNotifications(notifications);
+                } catch (error) {
+                    console.error('Error fetching notifications:', error);
+                    alert('Failed to load notifications. Please try again later.');
+                }
+            }
+
+            // Display notifications in the dashboard
+            function displayNotifications(notifications) {
+                const notificationsDiv = document.getElementById('notifications');
+                notificationsDiv.innerHTML = ''; // Clear existing content
+                if (notifications.length === 0) {
+                    notificationsDiv.innerHTML = '<p>No notifications found.</p>';
+                    return;
+                }
+                notifications.forEach(notification => {
+                    const notificationCard = document.createElement('div');
+                    notificationCard.className = 'card bg-white p-4 rounded-lg shadow-md';
+                    notificationCard.innerHTML = `
+                        <p>${notification.message}</p>
+                        <span class="text-gray-500 text-sm">${new Date(notification.date).toLocaleString()}</span>
+                    `;
+                    notificationsDiv.appendChild(notificationCard);
+                });
+            }
+
+            // Call the function with mock data
+            displayNotifications(mockNotifications);
+
+            async function cancelBooking(bookingId) {
+        const confirmCancel = confirm('Are you sure you want to cancel this booking?');
+        if (confirmCancel) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to cancel booking');
+                }
+                alert('Booking cancelled successfully.');
+                fetchCurrentBookings(); // Refresh the bookings list
+            } catch (error) {
+                console.error('Error cancelling booking:', error);
+                alert('Failed to cancel booking. Please try again later.');
+            }
+        }
+    }
+
+            // Fetch upcoming lessons from the backend
+    async function fetchUpcomingLessons() {
+        try {
+            const response = await fetch('http://localhost:5000/api/lessons/upcoming');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const lessons = await response.json();
+            displayUpcomingLessons(lessons);
+        } catch (error) {
+            console.error('Error fetching upcoming lessons:', error);
+            alert('Failed to load upcoming lessons. Please try again later.');
+        }
+    }
+
+    // Fetch current bookings from the backend
+    async function fetchCurrentBookings() {
+        try {
+            const response = await fetch('http://localhost:5000/api/bookings/current');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const bookings = await response.json();
+            displayCurrentBookings(bookings);
+        } catch (error) {
+            console.error('Error fetching current bookings:', error);
+            alert('Failed to load current bookings. Please try again later.');
+        }
+    }
+
+            // Fetch notifications from the backend
+            async function fetchNotifications() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/notifications');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const notifications = await response.json();
+                        displayNotifications(notifications);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+            alert('Failed to load notifications. Please try again later.');
+        }
+    }
+
+            // Call these functions on page load
+            fetchUpcomingLessons();
+            fetchCurrentBookings();
+            fetchNotifications();
+
+            // Example function to cancel a booking
+            async function cancelBooking(bookingId) {
+                const confirmCancel = confirm('Are you sure you want to cancel this booking?');
+                if (confirmCancel) {
+                    try {
+                        const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+                            method: 'DELETE',
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to cancel booking');
+                        }
+                        alert('Booking cancelled successfully.');
+                        fetchCurrentBookings(); // Refresh the bookings list
+                    } catch (error) {
+                        console.error('Error cancelling booking:', error);
+                        alert('Failed to cancel booking. Please try again later.');
+                    }
+                }
+            }
+
+            // Call the function on page load
+            fetchCurrentBookings();
+
+            document.getElementById('submitFeedback').addEventListener('click', async () => {
+        const feedback = document.getElementById('feedbackText').value;
+        if (feedback) {
+            try {
+                const response = await fetch('http://localhost:5000/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ feedback }),
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to submit feedback');
+                }
+                alert('Thank you for your feedback!');
+                document.getElementById('feedbackText').value = ''; // Clear the textarea
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                alert('Failed to submit feedback. Please try again later.');
+            }
+        } else {
+            alert('Please enter your feedback before submitting.');
+        }
+    });
+        </script>
+    </body>
+
+    </html>

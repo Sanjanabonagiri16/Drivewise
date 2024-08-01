@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Lexend%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900">
+    <title>DriveWise - FAQ</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+
+<body class="bg-gray-100 font-sans" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Frequently Asked Questions</h1>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-4 transition duration-300 ease-in-out transform hover:shadow-lg">
+            <h2 class="font-semibold text-lg cursor-pointer flex justify-between items-center" onclick="toggleAnswer('faq1')">
+                What is DriveWise?
+                <span class="ml-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v8a1 1 0 11-2 0V6a1 1 0 011-1z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+            </h2>
+            <p id="faq1" class="hidden mt-2 text-gray-600">DriveWise is a platform that connects learners with driving schools for lessons and training.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-4 transition duration-300 ease-in-out transform hover:shadow-lg">
+            <h2 class="font-semibold text-lg cursor-pointer flex justify-between items-center" onclick="toggleAnswer('faq2')">
+                How do I book a lesson?
+                <span class="ml-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v8a1 1 0 11-2 0V6a1 1 0 011-1z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+            </h2>
+            <p id="faq2" class="hidden mt-2 text-gray-600">You can book a lesson by selecting a driving school and choosing a time slot on our booking page.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-4 transition duration-300 ease-in-out transform hover:shadow-lg">
+            <h2 class="font-semibold text-lg cursor-pointer flex justify-between items-center" onclick="toggleAnswer('faq3')">
+                What payment methods do you accept?
+                <span class="ml-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v8a1 1 0 11-2 0V6a1 1 0 011-1z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+            </h2>
+            <p id="faq3" class="hidden mt-2 text-gray-600">We accept various payment methods, including credit cards and PayPal.</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnswer(faqId) {
+            const answer = document.getElementById(faqId);
+            answer.classList.toggle('hidden');
+        }
+    </script>
+</body>
+
+</html>

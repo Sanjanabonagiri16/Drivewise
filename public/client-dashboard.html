@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&display=swap">
+    <title>Client Dashboard - DriveWise</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" defer></script>
+    <script src="https://maps.ola.com/sdk?key=ZdBT8ZihPLQhMe4T7rDvUCPJxRpFhFU10bL2uYv6" defer></script>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+
+        .dashboard-header {
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .dashboard-header:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .widget {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn {
+            transition: background-color 0.3s ease, transform 0.2s;
+            background-color: #f49a25;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #d68a1e;
+            transform: scale(1.05);
+        }
+
+        a {
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #f49a25;
+        }
+
+        .search-bar {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        footer {
+            background-color: #ffffff;
+            text-align: center;
+            padding: 15px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #f49a25;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        p,
+        li {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex flex-col min-h-screen">
+        <header class="dashboard-header">
+            <h1 class="text-[#1c150d] text-2xl font-bold">Client Dashboard</h1>
+            <div class="relative">
+                <button id="profileButton" class="flex items-center">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                    <span class="ml-2">Profile</span>
+                </button>
+                <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                    <a href="client-profile.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">View Profile</a>
+                    <a href="settings.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Settings</a>
+                    <button class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+        <main class="flex-grow container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Notifications</h2>
+                <ul id="notificationsList" class="list-disc pl-5 mb-4">
+                    <!-- Notifications will be populated here -->
+                </ul>
+            </div>
+
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Feedback & Reviews</h2>
+                <ul id="feedbackList" class="list-disc pl-5 mb-4">
+                    <li>"Great instructor! Learned a lot." - User A</li>
+                    <li>"The lessons were very helpful and informative." - User B</li>
+                    <li>"I feel much more confident behind the wheel now!" - User C</li>
+                </ul>
+                <button class="btn" onclick="openFeedbackForm()">Submit Feedback</button>
+            </div>
+
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Upcoming Lessons</h2>
+                <ul class="list-disc pl-5 mb-4">
+                    <li>Lesson with Instructor A - 10:00 AM, July 27, 2023</li>
+                    <li>Lesson with Instructor B - 2:00 PM, July 28, 2023</li>
+                    <li>Lesson with Instructor C - 1:00 PM, August 1, 2023</li>
+                </ul>
+                <button class="btn" onclick="window.location.href='booking.html'">View All Lessons</button>
+            </div>
+
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">User Statistics</h2>
+                <ul class="list-disc pl-5 mb-4">
+                    <li>Lessons Booked: <span id="lessonsBooked">5</span></li>
+                    <li>Lessons Completed: <span id="lessonsCompleted">3</span></li>
+                </ul>
+            </div>
+
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Driving School Discovery</h2>
+                <input type="text" placeholder="Search by location" class="search-bar" id="searchInput">
+                <button class="btn" onclick="searchSchools()">Search</button>
+                <div id="map"></div>
+            </div>
+
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Lesson Booking and Management</h2>
+                <ul class="list-disc pl-5 mb-4">
+                    <li>Lesson with Instructor A - 10:00 AM, July 27, 2023</li>
+                    <li>Lesson with Instructor B - 2:00 PM, July 28, 2023</li>
+                </ul>
+                <button class="btn" onclick="window.location.href='booking.html'">Book a Lesson</button>
+            </div>
+    
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Learning Resources</h2>
+                <button class="btn" onclick="window.location.href='learning-resources.html'">View Resources</button>
+            </div>
+    
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Payment and Transactions</h2>
+                <button class="btn" onclick="window.location.href='payment.html'">View Transactions</button>
+            </div>
+    
+            <div class="widget">
+                <h2 class="text-[#1c150d] text-xl font-bold mb-4">Support and Assistance</h2>
+                <button class="btn" onclick="window.location.href='contact-support.html'">Contact Support</button>
+            </div>
+        </main>
+    
+        <footer>
+            <p class="text-[#60778a]">© 2024 DriveWise. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Initialize Ola Map
+        function initMap() {
+            if (window.Ola) {
+                const map = new Ola.Map(document.getElementById('map'), {
+                    center: { lat: 40.7128, lng: -74.0060 }, // Default location (New York)
+                    zoom: 12
+                });
+    
+                // Example marker
+                new Ola.Marker({
+                    position: { lat: 40.7128, lng: -74.0060 },
+                    map: map,
+                    title: 'Sample Driving School'
+                });
+            } else {
+                console.error("Ola Map SDK not loaded.");
+            }
+        }
+    
+        function searchSchools() {
+            const searchQuery = document.getElementById('searchInput').value;
+            // Example search functionality
+            // Perform search and update the map with results
+            initMap();
+        }
+    
+        function openFeedbackForm() {
+            const feedback = prompt("Please enter your feedback:");
+            if (feedback) {
+                const feedbackList = document.getElementById('feedbackList');
+                const listItem = document.createElement('li');
+                listItem.textContent = feedback;
+                feedbackList.appendChild(listItem);
+            }
+        }
+    
+        function logout() {
+            alert('Logged out successfully!');
+            window.location.href = 'login.html';
+        }
+    
+        function fetchUserNotifications() {
+            const notifications = [
+                "Your lesson with Instructor A is confirmed for July 27, 2023.",
+                "You have a new message from Instructor B.",
+                "Don't forget to review your last lesson!",
+                "Your payment for the last lesson was successful."
+            ];
+    
+            const notificationsList = document.getElementById('notificationsList');
+            notificationsList.innerHTML = '';
+    
+            notifications.forEach(notification => {
+                const listItem = document.createElement('li');
+                listItem.textContent = notification;
+                notificationsList.appendChild(listItem);
+            });
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            fetchUserStatistics();
+            fetchUserNotifications();
+        });
+    
+        function fetchUserStatistics() {
+            const userStatistics = {
+                lessonsBooked: 5,
+                lessonsCompleted: 3
+            };
+    
+            document.getElementById('lessonsBooked').innerText = userStatistics.lessonsBooked;
+            document.getElementById('lessonsCompleted').innerText = userStatistics.lessonsCompleted;
+        }
+    
+        document.getElementById('profileButton').addEventListener('click', () => {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+    
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('profileDropdown');
+            if (!event.target.closest('#profileButton') && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

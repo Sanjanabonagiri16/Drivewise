@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css">
+    <title>Manage Bookings</title>
+    <style>
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #3490dc;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-center">Manage Your Bookings</h1>
+        <div id="bookingsList" class="space-y-4">
+            <!-- Booked lessons will be dynamically inserted here -->
+        </div>
+        <div id="loading" class="loading">Loading your bookings...</div>
+        <div id="noBookings" class="text-center text-gray-500 hidden">No bookings found.</div>
+    </div>
+
+    <script src="scripts/manage-bookings.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900">
+    <title>DriveWise - Login</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        /* Custom styles for button hover effects */
+        .btn {
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-[#fcfaf8] font-sans" style='font-family: "Noto Sans", sans-serif;'>
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-96 text-center transition-transform transform hover:scale-105">
+            <h2 class="text-[#1c150d] text-3xl font-bold mb-6">Login</h2>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-[#1c150d] font-medium">I am a:</label>
+                    <select id="user-type" class="border rounded-lg w-full p-2 mb-4" required>
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="client">Client/User</option>
+                        <option value="instructor">Driving School Instructor</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-[#1c150d] font-medium">Email</label>
+                    <input type="email" id="email" class="border rounded-lg w-full p-2" required placeholder="Enter your email">
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-[#1c150d] font-medium">Password</label>
+                    <div class="relative">
+                        <input type="password" id="password" class="border rounded-lg w-full p-2" required placeholder="Enter your password">
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i id="eyeIcon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn bg-[#f49a25] text-white rounded-lg w-full py-2">Login</button>
+            </form>
+            <p class="text-center text-[#60778a] mt-4">Don't have an account? <a href="register.html" class="text-[#1c150d]">Register here</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Basic validation
+            if (!email || !password) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            // Perform login API call
+            fetch('http://localhost:5000/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Login successful!');
+
+                    // Redirect to the appropriate dashboard based on user role
+                    if (data.user.role === 'instructor') {
+                        window.location.href = 'instructor-dashboard.html'; // Redirect to instructor dashboard
+                    } else {
+                        window.location.href = 'client-dashboard.html'; // Redirect to client dashboard
+                    }
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error during login:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>

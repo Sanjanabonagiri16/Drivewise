@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans:wght@400;500;700;900">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.1/main.min.css" rel="stylesheet" />
+    <title>Instructor Dashboard - DriveWise</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.1/main.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .dashboard-header {
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-bar {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 250px;
+        }
+        .widget {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        .btn {
+            background-color: #f49a25;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            display: inline-block;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+        .btn:hover {
+            background-color: #d68a1e;
+            transform: scale(1.05);
+        }
+        #calendar {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        footer {
+            background-color: #ffffff;
+            padding: 10px 20px;
+            text-align: center;
+            color: #60778a;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex flex-col min-h-screen">
+        <header class="dashboard-header">
+            <h1 class="text-[#1c150d] text-2xl font-bold">Instructor Dashboard</h1>
+            <input type="text" id="search" placeholder="Search..." class="search-bar">
+            <div class="relative">
+                <button id="profileButton" class="flex items-center">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                    <span class="ml-2">Profile</span>
+                </button>
+                <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                    <a href="instructor-profile.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">View Profile</a>
+                    <a href="settings.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Settings</a>
+                    <button class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow container mx-auto dashboard-content p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">User Statistics</h2>
+                    <ul class="list-disc pl-5 mb-4">
+                        <li>Lessons Conducted: <span id="lessonsConducted">10</span></li>
+                        <li>Students Enrolled: <span id="studentsEnrolled">25</span></li>
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Lessons Conducted Over Time</h2>
+                    <canvas id="lessonsChart"></canvas>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Notifications</h2>
+                    <ul id="notificationsList" class="list-disc pl-5 mb-4">
+                        <!-- Notifications will be populated here -->
+                    </ul>
+                    <button class="btn" id="simulateNotificationButton">Simulate New Notification</button>
+                </div>
+
+                <div class="widget col-span-1 md:col-span-2 lg:col-span-3">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Upcoming Lessons Calendar</h2>
+                    <div id="calendar"></div>
+                </div>
+
+                <div class="widget col-span-1 md:col-span-2 lg:col-span-3">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Communication Tools</h2>
+                    <h3 class="text-[#1c150d] font-semibold mb-2">Chat with Students</h3>
+                    <div id="chatContainer" class="mb-4" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+                        <!-- Chat messages will be displayed here -->
+                    </div>
+                    <input type="text" id="chatInput" placeholder="Type your message..." class="search-bar mb-2">
+                    <button class="btn" id="sendMessageButton">Send</button>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Payment and Financial Overview</h2>
+                    <h3 class="text-[#1c150d] font-semibold mb-2">Payments Overview</h3>
+                    <p>Received Payments: $500</p>
+                    <p>Pending Payments: $200</p>
+                    <button class="btn">View Invoices</button>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Analytics Dashboard</h2>
+                    <ul class="list-disc pl-5 mb-4">
+                        <li>Total Users: <span id="totalUsers">0</span></li>
+                        <li>Lessons Conducted: <span id="lessonsConducted">0</span></li>
+                        <li>Lesson Completion Rate: <span id="lessonCompletionRate">0</span>%</li>
+                        <li>Total Revenue: $<span id="totalRevenue">0</span></li>
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Student Management</h2>
+                    <ul id="studentList" class="list-disc pl-5 mb-4">
+                        <!-- Student profiles will be populated here -->
+                    </ul>
+                    <button class="btn" id="loadStudentsButton">Load Students</button>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Feedback and Ratings</h2>
+                    <form id="feedbackForm" class="mb-4">
+                        <input type="text" id="studentName" placeholder="Your Name" class="search-bar mb-2" required>
+                        <input type="text" id="lessonId" placeholder="Lesson ID" class="search-bar mb-2" required>
+                        <input type="number" id="rating" placeholder="Rating (1-5)" class="search-bar mb-2" min="1" max="5" required>
+                        <textarea id="comment" placeholder="Your Feedback" class="search-bar mb-2" required></textarea>
+                        <button type="submit" class="btn">Submit Feedback</button>
+                    </form>
+                    <ul id="feedbackList" class="list-disc pl-5 mb-4">
+                        <!-- Feedback will be populated here -->
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Promotions and Branding</h2>
+                    <form id="promotionForm" class="mb-4">
+                        <input type="text" id="promotionTitle" placeholder="Promotion Title" class="search-bar mb-2" required>
+                        <textarea id="promotionDescription" placeholder="Promotion Description" class="search-bar mb-2" required></textarea>
+                        <button type="submit" class="btn">Create Promotion</button>
+                    </form>
+                    <ul id="promotionList" class="list-disc pl-5 mb-4">
+                        <!-- Promotions will be populated here -->
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h2 class="text-[#1c150d] text-xl font-bold mb-4">Administrative Tools</h2>
+                    <h3 class="text-[#1c150d] font-semibold mb-2">Support and Settings</h3>
+                    <button class="btn" id="accessAdminSettingsButton">Access Admin Settings</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 DriveWise. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        function logout() {
+            alert('Logged out successfully!');
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+
+        function fetchUserStatistics() {
+            const userStatistics = {
+                lessonsConducted: 10,
+                studentsEnrolled: 25
+            };
+
+            document.getElementById('lessonsConducted').innerText = userStatistics.lessonsConducted;
+            document.getElementById('studentsEnrolled').innerText = userStatistics.studentsEnrolled;
+        }
+
+        function loadStudents() {
+            const students = [
+                { name: "Student A", progress: "80%" },
+                { name: "Student B", progress: "65%" },
+                { name: "Student C", progress: "90%" },
+            ];
+
+            const studentList = document.getElementById('studentList');
+            studentList.innerHTML = ''; // Clear existing list
+
+            students.forEach(student => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${student.name} - Progress: ${student.progress}`;
+                studentList.appendChild(listItem);
+            });
+        }
+
+        function loadFeedback() {
+            const feedback = [
+                { student: "Student A", rating: 4, comment: "Great instructor, very helpful!" },
+                { student: "Student B", rating: 5, comment: "Excellent lessons, highly recommend!" },
+                { student: "Student C", rating: 3, comment: "Good, but could improve on pacing." },
+            ];
+
+            const feedbackList = document.getElementById('feedbackList');
+            feedbackList.innerHTML = ''; // Clear existing feedback
+
+            feedback.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${item.student} - Rating: ${item.rating} - Comment: "${item.comment}"`;
+                feedbackList.appendChild(listItem);
+            });
+        }
+
+        // Handle promotion creation
+        document.getElementById('promotionForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const title = document.getElementById('promotionTitle').value.trim();
+            const description = document.getElementById('promotionDescription').value.trim();
+
+            if (title && description) {
+                const promotionList = document.getElementById('promotionList');
+                const listItem = document.createElement('li');
+                listItem.textContent = `${title}: ${description}`;
+                promotionList.appendChild(listItem);
+
+                // Clear the form fields
+                document.getElementById('promotionTitle').value = '';
+                document.getElementById('promotionDescription').value = '';
+            }
+        });
+
+        // frontend/instructorDashboard.js
+async function fetchAnalytics() {
+    try {
+        const response = await fetch('/api/analytics');
+        const data = await response.json();
+        document.getElementById('totalUsers').innerText = data.totalUsers || 0;
+        document.getElementById('lessonsConducted').innerText = data.lessonsConducted || 0;
+        document.getElementById('lessonCompletionRate').innerText = data.lessonCompletionRate || 0;
+        document.getElementById('totalRevenue').innerText = data.totalRevenue || 0;
+    } catch (error) {
+        console.error('Error fetching analytics:', error);
+    }
+}
+
+// Fetch analytics data on page load
+document.addEventListener('DOMContentLoaded', () => {
+    fetchAnalytics();
+});
+
+        // Access admin settings
+        document.getElementById('accessAdminSettingsButton').addEventListener('click', function() {
+            alert('Accessing Admin Settings...'); // Simulate accessing admin settings
+            // Here you can redirect to the actual admin settings page if it exists
+            // window.location.href = 'admin-settings.html';
+        });
+
+        document.getElementById('search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const widgets = document.querySelectorAll('.widget');
+
+            widgets.forEach(widget => {
+                const text = widget.innerText.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    widget.style.display = 'block';
+                } else {
+                    widget.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('profileButton').addEventListener('click', () => {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('profileDropdown');
+            if (!event.target.closest('#profileButton') && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUserStatistics();
+            createLessonsChart(); // Initialize the chart
+
+            // Initialize the calendar
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: [
+                    { title: 'Lesson with Student A', start: '2023-07-27T10:00:00' },
+                    { title: 'Lesson with Student B', start: '2023-07-28T14:00:00' }
+                ]
+            });
+            calendar.render();
+        });
+
+        // Simulate new notifications
+        let notificationCount = 0; // To keep track of the number of notifications
+
+        function simulateNewNotification() {
+            notificationCount++;
+            const newNotification = `New notification ${notificationCount}: You have a new message from Student B.`;
+            const notificationsList = document.getElementById('notificationsList');
+            
+            const listItem = document.createElement('li');
+            listItem.textContent = newNotification;
+            notificationsList.appendChild(listItem);
+        }
+
+        // Add event listener to simulate new notifications
+        document.getElementById('simulateNotificationButton').addEventListener('click', simulateNewNotification);
+
+        // Chat functionality
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+
+            if (message) {
+                const chatContainer = document.getElementById('chatContainer');
+                const messageElement = document.createElement('div');
+                messageElement.textContent = `Instructor: ${message}`;
+                chatContainer.appendChild(messageElement);
+                chatInput.value = ''; // Clear the input field
+                chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
+            }
+        }
+
+        // Add event listener to the send message button
+        document.getElementById('sendMessageButton').addEventListener('click', sendMessage);
+
+        // Allow pressing Enter to send a message
+        document.getElementById('chatInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // frontend/instructorDashboard.js
+document.getElementById('feedbackForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent form submission
+
+    const studentName = document.getElementById('studentName').value.trim();
+    const lessonId = document.getElementById('lessonId').value.trim();
+    const rating = document.getElementById('rating').value.trim();
+    const comment = document.getElementById('comment').value.trim();
+
+    try {
+        const response = await fetch('/api/feedback/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ studentName, lessonId, rating, comment }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert('Feedback submitted successfully!');
+            // Optionally, clear the form fields
+            document.getElementById('feedbackForm').reset();
+            loadFeedback(lessonId); // Reload feedback for the lesson
+        } else {
+            alert('Failed to submit feedback: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+    }
+});
+
+// Function to load feedback for a specific lesson
+async function loadFeedback(lessonId) {
+    try {
+        const response = await fetch(`/api/feedback/${lessonId}`);
+        const feedbacks = await response.json();
+        const feedbackList = document.getElementById('feedbackList');
+        feedbackList.innerHTML = ''; // Clear existing feedback
+
+        feedbacks.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${item.studentName} - Rating: ${item.rating} - Comment: "${item.comment}"`;
+            feedbackList.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error('Error fetching feedback:', error);
+    }
+}
+
+        // Load students when the button is clicked
+        document.getElementById('loadStudentsButton').addEventListener('click', loadStudents);
+    </script>
+</body>
+
+</html>

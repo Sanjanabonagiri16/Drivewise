@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Lexend%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900">
+    <title>DriveWise - Contact Support</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        /* Custom styles can go here */
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Contact Support</h1>
+        <p class="text-center mb-4">We're here to help! Please fill out the form below to reach our support team.</p>
+
+        <form id="contactForm" class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
+                <input type="text" id="name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" required>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+                <input type="email" id="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" required>
+            </div>
+            <div class="mb-4">
+                <label for="message" class="block text-sm font-medium text-gray-700">Message:</label>
+                <textarea id="message" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" required></textarea>
+            </div>
+            <div class="flex justify-center">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-2 transition duration-150">Send Message</button>
+            </div>
+        </form>
+
+        <div id="responseMessage" class="mt-4 text-center text-sm"></div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            // Send the data to the server (you'll need to implement this endpoint)
+            try {
+                const response = await fetch('http://localhost:5000/api/support', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, message }),
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('responseMessage').textContent = 'Your message has been sent successfully!';
+                    document.getElementById('responseMessage').classList.add('text-green-500');
+                    document.getElementById('responseMessage').classList.remove('text-red-500');
+                    document.getElementById('contactForm').reset(); // Reset the form
+                } else {
+                    document.getElementById('responseMessage').textContent = 'Failed to send message: ' + data.message;
+                    document.getElementById('responseMessage').classList.add('text-red-500');
+                    document.getElementById('responseMessage').classList.remove('text-green-500');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                document.getElementById('responseMessage').textContent = 'An error occurred. Please try again later.';
+                document.getElementById('responseMessage').classList.add('text-red-500');
+                document.getElementById('responseMessage').classList.remove('text-green-500');
+            }
+        });
+    </script>
+</body>
+
+</html>

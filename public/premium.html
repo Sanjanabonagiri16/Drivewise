@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900">
+    <title>DriveWise - Premium Driving Experience</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        /* Custom styles for button hover effects */
+        .btn {
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-[#fcfaf8] font-sans" style='font-family: "Noto Sans", sans-serif;'>
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-96 text-center transition-transform transform hover:scale-105">
+            <h2 class="text-[#1c150d] text-3xl font-bold mb-6">Welcome to DriveWise</h2>
+            <p class="text-[#60778a] mb-4">Choose your path to get started:</p>
+            <div class="mb-4">
+                <button onclick="registerUser('instructor')" class="btn bg-[#f49a25] text-white rounded-lg w-full py-2">Register as Instructor</button>
+            </div>
+            <div class="mb-4">
+                <button onclick="registerUser('client')" class="btn bg-[#f49a25] text-white rounded-lg w-full py-2">Register as Client</button>
+            </div>
+            <div class="mb-4">
+                <button onclick="loginUser()" class="btn bg-[#1c150d] text-white rounded-lg w-full py-2">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function registerUser(type) {
+            // Redirect to the registration page with the user type as a query parameter
+            window.location.href = `register.html?type=${type}`;
+        }
+
+        function loginUser() {
+            // Redirect to the login page
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

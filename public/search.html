@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900">
+    <title>DriveWise - Search</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-[#fcfaf8] font-sans" style='font-family: "Work Sans", "Noto Sans", sans-serif;'>
+    <div class="relative flex flex-col min-h-screen overflow-x-hidden">
+        <!-- ... existing code ... -->
+        <div class="px-4 py-3">
+            <label class="flex flex-col min-w-40 h-12 w-full">
+                <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+                    <div class="text-[#9c7849] flex border-none bg-[#f4eee7] items-center justify-center pl-4 rounded-l-xl border-r-0" data-icon="MagnifyingGlass" data-size="24px" data-weight="regular">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                            <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+                        </svg>
+                    </div>
+                    <input id="search-input" placeholder="Search for driving school" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#1c150d] focus:outline-0 focus:ring-0 border-none bg-[#f4eee7] focus:border-none h-full placeholder:text-[#9c7849] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" value="">
+                </div>
+            </label>
+        </div>
+        <h3 class="text-[#1c150d] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Location</h3>
+        <div class="flex items-center gap-4 bg-[#fcfaf8] px-4 min-h-14 justify-between">
+            <p id="location" class="text-[#1c150d] text-base font-normal leading-normal flex-1 truncate">All of India</p>
+            <div class="shrink-0">
+                <div class="text-[#1c150d] flex items-center justify-center" data-icon="ArrowRight" data-size="24px" data-weight="regular">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <h3 class="text-[#1c150d] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Price</h3>
+        <div id="price-range" class="flex gap-3 p-3 flex-wrap pr-4">
+            <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f4eee7] pl-4 pr-4">
+                <p class="text-[#1c150d] text-sm font-medium leading-normal">Under ₹1000</p>
+            </div>
+            <!-- ... other price ranges ... -->
+        </div>
+        <h3 class="text-[#1c150d] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Rating</h3>
+        <div id="rating" class="flex gap-3 p-3 flex-wrap pr-4">
+            <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f4eee7] pl-4 pr-4">
+                <p class="text-[#1c150d] text-sm font-medium leading-normal">4.5+</p>
+            </div>
+            <!-- ... other ratings ... -->
+        </div>
+        <h3 class="text-[#1c150d] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Sort by</h3>
+        <div class="flex items-center gap-4 bg-[#fcfaf8] px-4 min-h-14 justify-between">
+            <p id="sort-by" class="text-[#1c150d] text-base font-normal leading-normal flex-1 truncate">Best Match</p>
+            <div class="shrink-0">
+                <div class="text-[#1c150d] flex items-center justify-center" data-icon="Check" data-size="24px" data-weight="regular">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div id="results" class="p-4">
+            <!-- Search results will be displayed here -->
+        </div>
+        <div class="h-5 bg-[#fcfaf8]"></div>
+    </div>
+    <script>
+        // Function to fetch data from the backend
+        function fetchData(query, location, priceRange, rating, sortBy) {
+            fetch(`https://api.example.com/search?query=${query}&location=${location}&priceRange=${priceRange}&rating=${rating}&sortBy=${sortBy}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // Handle the response data
+                    displayResults(data); // Function to update the UI with search results
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Function to display search results
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+            data.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <h4>${item.name}</h4>
+                    <p>${item.description}</p>
+                `;
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+
+        // Event listener for search input
+        document.getElementById('search-input').addEventListener('input', function(event) {
+            const query = event.target.value;
+            const location = document.getElementById('location').innerText;
+            const priceRange = document.getElementById('price-range').querySelector('.selected')?.innerText || 'Under ₹1000';
+            const rating = document.getElementById('rating').querySelector('.selected')?.innerText || '4.5+';
+            const sortBy = document.getElementById('sort-by').innerText;
+
+            fetchData(query, location, priceRange, rating, sortBy);
+        });
+
+        // Add event listeners for other filters (location, price range, rating, sort by)
+        // Example for price range:
+        document.getElementById('price-range').addEventListener('click', function(event) {
+            if (event.target.tagName === 'P') {
+                document.querySelectorAll('#price-range .selected').forEach(el => el.classList.remove('selected'));
+                event.target.classList.add('selected');
+                const query = document.getElementById('search-input').value;
+                const location = document.getElementById('location').innerText;
+                const priceRange = event.target.innerText;
+                const rating = document.getElementById('rating').querySelector('.selected')?.innerText || '4.5+';
+                const sortBy = document.getElementById('sort-by').innerText;
+
+                fetchData(query, location, priceRange, rating, sortBy);
+            }
+        });
+
+        let debounceTimer;
+            document.getElementById('search-input').addEventListener('input', function(event) {
+                clearTimeout(debounceTimer);
+                const query = event.target.value;
+                debounceTimer = setTimeout(() => {
+                    const location = document.getElementById('location').innerText;
+                    const priceRange = document.getElementById('price-range').querySelector('.selected')?.innerText || 'Under ₹1000';
+                    const rating = document.getElementById('rating').querySelector('.selected')?.innerText || '4.5+';
+                    const sortBy = document.getElementById('sort-by').innerText;
+
+                    fetchData(query, location, priceRange, rating, sortBy);
+                }, 300);
+            });
+
+        // Similar event listeners can be added for location, rating, and sort by
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Profile - DriveWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+        .profile-pic img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-pic img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .form-group input, .form-group textarea {
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .form-group textarea {
+            resize: vertical;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-blue-600 text-white p-4 text-center">
+        <h1 class="text-3xl font-bold">Client Profile Management</h1>
+        <nav class="mt-2">
+            <a href="dashboard.html" class="text-white mx-2 hover:underline">Dashboard</a>
+            <a href="logout.html" class="text-white mx-2 hover:underline">Logout</a>
+        </nav>
+    </header>
+    <main class="flex justify-center mt-6">
+        <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg max-w-lg">
+            <section class="profile-info">
+                <h2 class="text-2xl font-semibold mb-4">Profile Information</h2>
+                <form id="profileForm" class="space-y-4">
+                    <div class="profile-pic flex items-center space-x-4 mb-6">
+                        <label for="profilePic" class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg">Upload</label>
+                        <input type="file" id="profilePic" accept="image/*" class="hidden">
+                        <img id="profilePicPreview" src="default-profile.png" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200">
+                    </div>
+                    <div class="form-group">
+                        <label for="name" class="block text-gray-700 font-semibold mb-1">Name:</label>
+                        <input type="text" id="name" name="name" required class="border border-gray-300 rounded-lg p-3 w-full">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="block text-gray-700 font-semibold mb-1">Email:</label>
+                        <input type="email" id="email" name="email" required class="border border-gray-300 rounded-lg p-3 w-full">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="block text-gray-700 font-semibold mb-1">Phone:</label>
+                        <input type="tel" id="phone" name="phone" class="border border-gray-300 rounded-lg p-3 w-full">
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="block text-gray-700 font-semibold mb-1">Address:</label>
+                        <input type="text" id="address" name="address" class="border border-gray-300 rounded-lg p-3 w-full">
+                    </div>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </form>
+            </section>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profilePicInput = document.getElementById('profilePic');
+            const profilePicPreview = document.getElementById('profilePicPreview');
+            const profileForm = document.getElementById('profileForm');
+
+            profilePicInput.addEventListener('change', () => {
+                const file = profilePicInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        profilePicPreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            profileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(profileForm);
+                const response = await fetch('/api/users/update-profile', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Profile updated successfully!');
+                } else {
+                    alert('Failed to update profile.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
