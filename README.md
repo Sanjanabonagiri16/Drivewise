@@ -66,4 +66,4 @@ We welcome contributions to improve the project. If you have suggestions or woul
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
-For any inquiries or feedback, please reach out to kalidandiirajesh@gmail.com.
+For any inquiries or feedback, please reach out to bonagirisanjana1116@gmail.com.
